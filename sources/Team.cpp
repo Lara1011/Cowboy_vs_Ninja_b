@@ -9,8 +9,7 @@ using namespace std;
 
 namespace ariel {
     Team::Team() {
-        Character ch = Character();
-        this->leader = &ch;
+        leader = new Character();
         leader->assignToTeam();
     }
 
@@ -35,6 +34,7 @@ namespace ariel {
         if (members.size() < 10) {
             member->assignToTeam();
             members.push_back(member);
+            members = sortBasedOnType();
         } else
             throw runtime_error("Team is full !");
     }
@@ -42,46 +42,53 @@ namespace ariel {
     void Team::attack(Team *enemyTeam) {
         if (enemyTeam == nullptr)
             throw invalid_argument("Team is null !");
-        members = sortBasedOnType();
+        if (this == enemyTeam)
+            throw runtime_error("Team can't attack itself !");
+        if (stillAlive() == 0)
+            throw runtime_error("Attacker team has no living attackers !");
+        if (enemyTeam->stillAlive() == 0)
+            throw runtime_error("Enemy team has no living attackers !");
         if (!leader->isAlive()) {
             Character *closestCharacter = chooseNewLeader();
             if (closestCharacter != nullptr) {
                 leader = closestCharacter;
             } else {
-                std::cout << "The attacking team has no living members." << std::endl;
+                std::cout << "The attacking team has no living members." << endl;
                 return;
             }
         }
 
-        while (stillAlive() > 0 && enemyTeam->stillAlive() > 0) {
-            Character *target = chooseEnemy(enemyTeam->members);
-            if (target != nullptr) {
-                for (Character *member: members) {
-                    if (member->isAlive()) {
-                        if(!target->isAlive())
-                            break;
-                        if (Cowboy *cowboy = dynamic_cast<Cowboy *>(member)) {
-                            if (cowboy->hasboolets()) {
-                                cowboy->shoot(target);
-                            } else {
-                                cowboy->reload();
-                            }
-                        }
-                        if (Ninja *ninja = dynamic_cast<Ninja *>(member)) {
-                            if (leader->getLocation().distance(target->getLocation()) <= 1.0) {
-                                ninja->slash(target);
-                            } else {
-//                                if (member == leader)
-//                                    chooseNewLeader();
-                                ninja->move(target);
-                            }
+        Character *enemy = chooseEnemy(enemyTeam->members);
+        for (Character *member: members) {
+            if (enemy != nullptr) {
+                if (member->isAlive() && enemy->isAlive()) {
+                    if (auto *cowboy = dynamic_cast<Cowboy *>(member)) {
+                        if (cowboy->hasboolets()) {
+                            cowboy->shoot(enemy);
+                        } else {
+                            cowboy->reload();
                         }
                     }
+                    if (auto *ninja = dynamic_cast<Ninja *>(member)) {
+                        if (ninja->distance(enemy) < 1.0) {
+                            ninja->slash(enemy);
+                        } else {
+                            ninja->move(enemy);
+                        }
+                    }
+
                 }
+            } else {
+                cout
+                        << " ---------------------------------- NO LIVING CHARACTERS LEFT IN THE TEAMS ---------------------------------------"
+                        << endl;
+                return;
             }
+            if (!enemy->isAlive())
+                enemy = chooseEnemy(enemyTeam->members);
         }
-//        std::cout << "The enemy team has no living members." <<
-//                  std::endl;
+
+        cout << "--------------------------------------------------------------\n";
     }
 
     int Team::stillAlive() {
@@ -93,7 +100,6 @@ namespace ariel {
     }
 
     void Team::print() {
-        members = sortBasedOnType();
         for (Character *member: members) {
             member->print();
         }
@@ -104,7 +110,7 @@ namespace ariel {
         Character *newLeader = nullptr;
         for (Character *member: members) {
             double dis = leader->distance(member);
-            if (dis < minDis && leader != member) {
+            if (dis < minDis && leader != member && member->isAlive()) {
                 minDis = dis;
                 newLeader = member;
             }
@@ -112,10 +118,12 @@ namespace ariel {
         return newLeader;
     }
 
-    Character *Team::chooseEnemy(vector<ariel::Character *> enemies) {
+    Character *Team::chooseEnemy(const vector<ariel::Character *> &enemies) {
+        cout << "------------------- ENEMY TEAM --------------------" << endl;
         double minDis = MAXFLOAT;
-        Character *newEnemy;
+        Character *newEnemy = nullptr;
         for (Character *enemy: enemies) {
+            enemy->print();
             if (enemy->isAlive()) {
                 double dis = leader->distance(enemy);
                 if (dis < minDis) {
@@ -131,10 +139,11 @@ namespace ariel {
         return members;
     }
 
-    vector<Character*> Team::sortBasedOnType() {
-        vector<Character*> sortedMembers = members;
-        std::sort(sortedMembers.begin(), sortedMembers.end(), [](Character* a, Character* b) {
-            if (dynamic_cast<Cowboy*>(a) && dynamic_cast<Ninja*>(b)) {
+
+    vector<Character *> Team::sortBasedOnType() {
+        vector<Character *> sortedMembers = members;
+        std::sort(sortedMembers.begin(), sortedMembers.end(), [](Character *a, Character *b) {
+            if (dynamic_cast<Cowboy *>(a) && dynamic_cast<Ninja *>(b)) {
                 return true;
             } else {
                 return false;

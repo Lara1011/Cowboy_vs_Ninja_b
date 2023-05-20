@@ -13,9 +13,8 @@ namespace ariel {
         if (!isAlive())
             return "C- (" + this->getName() + ")";
         else {
-            cout << "C- " + this->getName() + ", Hit points: " + to_string(this->getHitPoints()) + ", Location: ";
-            this->getLocation().print();
-            return "";
+            return "C- " + this->getName() + ", Hit points: " + to_string(this->getHitPoints()) + ", Location: (" +
+                    to_string(this->getLocation().getX()) + "," + to_string(this->getLocation().getY()) + ")\n";
         }
     }
 
@@ -28,11 +27,13 @@ namespace ariel {
     void Cowboy::shoot(Character *other) {
         if(this == other)
             throw runtime_error("Can't harm yourself !");
-        if(!other->isAlive() || !isAlive())
-            throw runtime_error("Character is already dead !");
+        else if(!other->isAlive())
+            throw runtime_error("Cowboy's enemy is already dead !");
+        else if(!isAlive())
+            throw runtime_error("Cowboy is already dead !");
         else if (isAlive() && hasboolets()) {
-            other->hit(10);
             this->bullets--;
+            other->hit(10);
         }
     }
 

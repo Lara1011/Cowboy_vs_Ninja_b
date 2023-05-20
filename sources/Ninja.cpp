@@ -22,9 +22,11 @@ namespace ariel {
     void Ninja::slash(Character *other) {
         if(this == other)
             throw runtime_error("Can't harm yourself !");
-        if(!other->isAlive() || !isAlive())
-            throw runtime_error("Character is already dead !");
-        if (isAlive() && this->distance(other) < 1)
+        else if(!other->isAlive())
+            throw runtime_error("Ninja's enemy is already dead !");
+        else if(!isAlive())
+            throw runtime_error("Ninja is already dead !");
+        else if (isAlive() && this->distance(other) < 1)
             other->hit(40);
     }
 
@@ -33,6 +35,6 @@ namespace ariel {
             return "N- (" + this->getName() + ")";
         else
             return "N- " + this->getName() + ", Hit points: " + to_string(this->getHitPoints()) + ", Location: (" +
-                   to_string(this->getLocation().getX()) + "," + to_string(this->getLocation().getX()) + ")\n";
+                   to_string(this->getLocation().getX()) + "," + to_string(this->getLocation().getY()) + ")\n";
     }
 }

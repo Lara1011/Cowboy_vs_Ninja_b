@@ -25,7 +25,7 @@ namespace ariel {
 
         Team(Character *leader);
 
-        void add(Character *member);
+        virtual void add(Character *member);
 
         void attack(Team *enemyTeam);
 
@@ -33,7 +33,7 @@ namespace ariel {
 
         Character* chooseNewLeader();
 
-        Character* chooseEnemy(vector<Character*> enemies);
+        Character* chooseEnemy(const vector<Character*>& enemies);
 
         vector<Character *> getMembers();
 

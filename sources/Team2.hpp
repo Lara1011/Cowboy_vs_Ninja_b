@@ -13,7 +13,7 @@ namespace ariel{
     public:
         Team2();
         Team2(Character* leader);
-        //void attack(Team* enemyTeam);
+        void add(Character* member) override;
     };
 }
 
