@@ -13,6 +13,7 @@
 #include "TrainedNinja.hpp"
 #include "OldNinja.hpp"
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 namespace ariel {

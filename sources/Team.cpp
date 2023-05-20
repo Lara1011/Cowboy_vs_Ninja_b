@@ -5,8 +5,6 @@
 #include "Team.hpp"
 #include <unordered_set>
 
-using namespace std;
-
 namespace ariel {
     Team::Team() {
         leader = new Character();
@@ -147,7 +145,7 @@ namespace ariel {
 
     vector<Character *> Team::sortBasedOnType() {
         vector<Character *> sortedMembers = members;
-        std::sort(sortedMembers.begin(), sortedMembers.end(), [](Character *a, Character *b) {
+        sort(sortedMembers.begin(), sortedMembers.end(), [](Character *a, Character *b) {
             if (dynamic_cast<Cowboy *>(a) && dynamic_cast<Ninja *>(b)) {
                 return true;
             } else {
