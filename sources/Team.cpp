@@ -79,9 +79,7 @@ namespace ariel {
 
                 }
             } else {
-                cout
-                        << " ---------------------------------- NO LIVING CHARACTERS LEFT IN THE TEAMS ---------------------------------------"
-                        << endl;
+                cout<< " ---------------------------------- NO LIVING CHARACTERS LEFT IN THE TEAMS ---------------------------------------" << endl;
                 return;
             }
             if (!enemy->isAlive())
