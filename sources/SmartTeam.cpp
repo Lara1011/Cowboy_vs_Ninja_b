@@ -9,41 +9,66 @@ namespace ariel {
 
     SmartTeam::SmartTeam(Character *leader) : Team(leader) {}
 
-    void SmartTeam::attack(Team *enemyTeam) {
-        if(enemyTeam == nullptr)
-            throw invalid_argument("Team is null !");
-        // Find the weakest enemy member and attack it
-        Character *weakestEnemy = nullptr;
-        int minHealth = INT_MAX;
+    // Attack the weakest enemy from each member of the attacking team
+    void SmartTeam::attack(Team* enemyTeam) {
+        if (enemyTeam == nullptr)
+            throw invalid_argument("Enemy team is null!");
+        if (this == enemyTeam)
+            throw runtime_error("Team can't attack itself!");
+        if (stillAlive() == 0)
+            throw runtime_error("Attacker team has no living attackers!");
+        if (enemyTeam->stillAlive() == 0)
+            throw runtime_error("Enemy team has no living attackers!");
 
-        // Iterate over the enemy team's members
-        vector<Character *> enemyMembers = enemyTeam->getMembers();
-        for (Character *enemy: enemyMembers) {
-            if (enemy->getHitPoints() < minHealth) {
-                minHealth = enemy->getHitPoints();
-                weakestEnemy = enemy;
+        if (!getLeader()->isAlive()) {
+            Character* closestCharacter = chooseNewLeader();
+            if (closestCharacter != nullptr) {
+                setLeader(closestCharacter);
+            } else {
+                cout << "The attacking team has no living members." << endl;
+                return;
             }
         }
 
-        // Check if a weakest enemy was found
-        if (weakestEnemy != nullptr) {
-            // Attack the weakest enemy
-            Cowboy *cowboy = dynamic_cast<Cowboy *>(leader);
-            if (cowboy) {
-                if (cowboy->hasboolets()) {
-                    cowboy->shoot(weakestEnemy);
-                } else {
-                    cowboy->reload();
-                }
-            }
-            Ninja *ninja = dynamic_cast<Ninja *>(leader);
-            if (ninja) {
-                if (leader->getLocation().distance(weakestEnemy->getLocation()) <= 1.0) {
-                    ninja->slash(weakestEnemy);
-                } else {
-                    ninja->move(weakestEnemy);
+        unordered_set<Character*> chosenTargets;
+
+        for (Character* member : getMembers()) {
+            if (member->isAlive()) {
+                Character* enemy = chooseWeakestEnemy(enemyTeam->getMembers(), chosenTargets);
+                if (enemy != nullptr) {
+                    if (auto* cowboy = dynamic_cast<Cowboy*>(member)) {
+                        if (cowboy->hasboolets()) {
+                            cowboy->shoot(enemy);
+                        } else {
+                            cowboy->reload();
+                        }
+                    } else if (auto* ninja = dynamic_cast<Ninja*>(member)) {
+                        if (ninja->distance(enemy) < 1.0) {
+                            ninja->slash(enemy);
+                        } else {
+                            ninja->move(enemy);
+                        }
+                    }
+                    chosenTargets.insert(enemy);
                 }
             }
         }
+    }
+
+    Character* SmartTeam::chooseWeakestEnemy(const vector<Character*>& enemies, const unordered_set<Character*>& chosenTargets) {
+        cout << "------------------- ENEMY TEAM --------------------" << endl;
+        int minHealth = numeric_limits<int>::max();
+        Character* weakestEnemy = nullptr;
+        for (Character* enemy : enemies) {
+            enemy->print();
+            if (enemy->isAlive() && chosenTargets.find(enemy) == chosenTargets.end()) {
+                int health = enemy->getHitPoints();
+                if (health < minHealth) {
+                    minHealth = health;
+                    weakestEnemy = enemy;
+                }
+            }
+        }
+        return weakestEnemy;
     }
 }

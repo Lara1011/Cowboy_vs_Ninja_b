@@ -17,7 +17,7 @@
 using namespace std;
 namespace ariel {
     class Team {
-    protected:
+    private:
         Character *leader;
         vector<Character *> members;
     public:
@@ -25,7 +25,7 @@ namespace ariel {
 
         Team(Character *leader);
 
-        virtual void add(Character *member);
+        void add(Character *member);
 
         void attack(Team *enemyTeam);
 
@@ -39,7 +39,11 @@ namespace ariel {
 
         vector<Character*> sortBasedOnType();
 
-        void setLeader(Character* charac);
+        void setLeader(Character* newLeader);
+
+        Character* getLeader();
+
+        void addMember(Character* member);
 
         void print();
 

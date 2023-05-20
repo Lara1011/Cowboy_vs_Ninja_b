@@ -11,9 +11,9 @@ namespace ariel{
     void Team2::add(Character * member) {
         if (member->isInTeam())
             throw runtime_error("Member is already assigned to a team");
-        if (members.size() < 10) {
+        if (getMembers().size() < 10) {
             member->assignToTeam();
-            members.push_back(member);
+            addMember(member);
         } else
             throw runtime_error("Team is full !");
     }

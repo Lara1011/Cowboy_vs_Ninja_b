@@ -13,7 +13,7 @@ namespace ariel{
     public:
         Team2();
         Team2(Character* leader);
-        void add(Character* member) override;
+        void add(Character* member);
     };
 }
 

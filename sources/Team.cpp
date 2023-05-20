@@ -85,8 +85,6 @@ namespace ariel {
             if (!enemy->isAlive())
                 enemy = chooseEnemy(enemyTeam->members);
         }
-
-        cout << "--------------------------------------------------------------\n";
     }
 
     int Team::stillAlive() {
@@ -117,11 +115,9 @@ namespace ariel {
     }
 
     Character *Team::chooseEnemy(const vector<ariel::Character *> &enemies) {
-        cout << "------------------- ENEMY TEAM --------------------" << endl;
         double minDis = MAXFLOAT;
         Character *newEnemy = nullptr;
         for (Character *enemy: enemies) {
-            enemy->print();
             if (enemy->isAlive()) {
                 double dis = leader->distance(enemy);
                 if (dis < minDis) {
@@ -137,6 +133,17 @@ namespace ariel {
         return members;
     }
 
+    void Team::addMember(Character *member) {
+        members.push_back(member);
+    }
+
+    void Team::setLeader(Character *newLeader) {
+        leader = newLeader;
+    }
+
+    Character *Team::getLeader() {
+        return leader;
+    }
 
     vector<Character *> Team::sortBasedOnType() {
         vector<Character *> sortedMembers = members;

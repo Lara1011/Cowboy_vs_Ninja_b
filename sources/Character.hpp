@@ -30,6 +30,11 @@ public:
     bool isInTeam();
     void assignToTeam();
     void print();
+
+    Character(Character&); // Copy constructor
+    Character (Character&& ) noexcept; // Copy assignment operator
+    Character& operator = (const Character&); // Move constructor
+    Character& operator=(Character&& ) noexcept; // Move assignment operator
 };
 }
 

@@ -7,6 +7,7 @@
 
 
 #include "Team.hpp"
+#include <unordered_set>
 
 namespace ariel{
     class SmartTeam : public Team {
@@ -14,6 +15,7 @@ namespace ariel{
         SmartTeam();
         SmartTeam(Character* leader);
         void attack(Team* enemyTeam);
+        Character* chooseWeakestEnemy(const vector<Character*>& enemies, const unordered_set<Character*>& chosenTargets);
     };
 }
 
