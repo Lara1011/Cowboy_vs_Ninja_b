@@ -15,7 +15,8 @@ namespace ariel{
         SmartTeam();
         SmartTeam(Character* leader);
         void attack(Team* enemyTeam);
-        Character* chooseWeakestEnemy(const vector<Character*>& enemies, const unordered_set<Character*>& chosenTargets);
+        Character* chooseHighestDamageEnemy(const vector<Character*>& enemies);
+        int calculateDamage(Character* enemy);
     };
 }
 

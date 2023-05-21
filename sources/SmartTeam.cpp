@@ -9,8 +9,8 @@ namespace ariel {
 
     SmartTeam::SmartTeam(Character *leader) : Team(leader) {}
 
-    // Attack the weakest enemy from each member of the attacking team
-    void SmartTeam::attack(Team* enemyTeam) {
+    // Attack the enemy with the highest damage potential from each member of the attacking team
+    void SmartTeam::attack(Team *enemyTeam) {
         if (enemyTeam == nullptr)
             throw invalid_argument("Enemy team is null!");
         if (this == enemyTeam)
@@ -21,7 +21,7 @@ namespace ariel {
             throw runtime_error("Enemy team has no living attackers!");
 
         if (!getLeader()->isAlive()) {
-            Character* closestCharacter = chooseNewLeader();
+            Character *closestCharacter = chooseNewLeader();
             if (closestCharacter != nullptr) {
                 setLeader(closestCharacter);
             } else {
@@ -30,45 +30,60 @@ namespace ariel {
             }
         }
 
-        unordered_set<Character*> chosenTargets;
-
-        for (Character* member : getMembers()) {
-            if (member->isAlive()) {
-                Character* enemy = chooseWeakestEnemy(enemyTeam->getMembers(), chosenTargets);
-                if (enemy != nullptr) {
-                    if (auto* cowboy = dynamic_cast<Cowboy*>(member)) {
+        Character *enemy = chooseHighestDamageEnemy(enemyTeam->getMembers());
+        for (Character *member: getMembers()) {
+            if (enemy != nullptr) {
+                if (member->isAlive() && enemy->isAlive()) {
+                    if (auto *cowboy = dynamic_cast<Cowboy *>(member)) {
                         if (cowboy->hasboolets()) {
                             cowboy->shoot(enemy);
                         } else {
                             cowboy->reload();
                         }
-                    } else if (auto* ninja = dynamic_cast<Ninja*>(member)) {
+                    } else if (auto *ninja = dynamic_cast<Ninja *>(member)) {
                         if (ninja->distance(enemy) < 1.0) {
                             ninja->slash(enemy);
                         } else {
                             ninja->move(enemy);
                         }
                     }
-                    chosenTargets.insert(enemy);
                 }
             }
+            if (!enemy->isAlive())
+                enemy = chooseEnemy(enemyTeam->getMembers());
         }
     }
 
-    Character* SmartTeam::chooseWeakestEnemy(const vector<Character*>& enemies, const unordered_set<Character*>& chosenTargets) {
-        cout << "------------------- ENEMY TEAM --------------------" << endl;
-        int minHealth = numeric_limits<int>::max();
-        Character* weakestEnemy = nullptr;
-        for (Character* enemy : enemies) {
-            enemy->print();
-            if (enemy->isAlive() && chosenTargets.find(enemy) == chosenTargets.end()) {
-                int health = enemy->getHitPoints();
-                if (health < minHealth) {
-                    minHealth = health;
-                    weakestEnemy = enemy;
+    Character *SmartTeam::chooseHighestDamageEnemy(const vector<Character *> &enemies) {
+        int highestDamage = 0;
+        Character *highestDamageEnemy = nullptr;
+        for (Character *enemy: enemies) {
+            if (enemy->isAlive()) {
+                int damage = calculateDamage(enemy);
+                if (damage > highestDamage) {
+                    highestDamage = damage;
+                    highestDamageEnemy = enemy;
                 }
             }
         }
-        return weakestEnemy;
+        return highestDamageEnemy;
+    }
+
+    int SmartTeam::calculateDamage(Character *enemy) {
+        int damage = 0;
+        for (Character *attacker: getMembers()) {
+            if (attacker->isAlive()) {
+                if (auto *cowboy = dynamic_cast<Cowboy *>(attacker)) {
+                    if (cowboy->hasboolets()) {
+                        damage += 10;
+                    }
+                } else if (auto *ninja = dynamic_cast<Ninja *>(attacker)) {
+                    if (ninja->distance(enemy) < 1.0) {
+                        damage += 40;
+                    }
+                }
+            }
+        }
+        return damage;
     }
 }
