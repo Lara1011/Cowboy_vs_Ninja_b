@@ -30,7 +30,7 @@ namespace ariel {
             }
         }
 
-        Character *enemy = chooseHighestDamageEnemy(enemyTeam->getMembers());
+        Character *enemy = chooseWeakestEnemy(enemyTeam->getMembers());
         for (Character *member: getMembers()) {
             if (enemy != nullptr) {
                 if (member->isAlive() && enemy->isAlive()) {
@@ -50,40 +50,22 @@ namespace ariel {
                 }
             }
             if (!enemy->isAlive())
-                enemy = chooseHighestDamageEnemy(enemyTeam->getMembers());
+                enemy = chooseWeakestEnemy(enemyTeam->getMembers());
         }
     }
 
-    Character *SmartTeam::chooseHighestDamageEnemy(const vector<Character *> &enemies) {
-        int highestDamage = 0;
+    Character *SmartTeam::chooseWeakestEnemy(const vector<Character *> &enemies) {
+        int maxDamage = INT32_MAX;
         Character *highestDamageEnemy = nullptr;
         for (Character *enemy: enemies) {
             if (enemy->isAlive()) {
-                int damage = calculateDamage(enemy);
-                if (damage > highestDamage) {
-                    highestDamage = damage;
+                int damage = enemy->getHitPoints();
+                if (damage < maxDamage) {
+                    maxDamage = damage;
                     highestDamageEnemy = enemy;
                 }
             }
         }
         return highestDamageEnemy;
-    }
-
-    int SmartTeam::calculateDamage(Character *enemy) {
-        int damage = 0;
-        for (Character *attacker: getMembers()) {
-            if (attacker->isAlive()) {
-                if (auto *cowboy = dynamic_cast<Cowboy *>(attacker)) {
-                    if (cowboy->hasboolets()) {
-                        damage += 10;
-                    }
-                } else if (auto *ninja = dynamic_cast<Ninja *>(attacker)) {
-                    if (ninja->distance(enemy) < 1.0) {
-                        damage += 40;
-                    }
-                }
-            }
-        }
-        return damage;
     }
 }
