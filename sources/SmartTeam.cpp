@@ -50,7 +50,7 @@ namespace ariel {
                 }
             }
             if (!enemy->isAlive())
-                enemy = chooseEnemy(enemyTeam->getMembers());
+                enemy = chooseHighestDamageEnemy(enemyTeam->getMembers());
         }
     }
 
